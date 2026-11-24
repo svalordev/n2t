@@ -12,11 +12,51 @@
  *                            [0,  0,  0,  0,  0, in,  0,  0] if sel = 101
  *                            [0,  0,  0,  0,  0,  0, in,  0] if sel = 110
  *                            [0,  0,  0,  0,  0,  0,  0, in] if sel = 111
+ 
+                                                          Let not be 0
+
+    a = Not(sel[2]) * Not(sel[1]) * Not(sel[0]) * in       0   0   0
+    b = Not(sel[2]) * Not(sel[1]) * (sel[0]) * in          0   0   1
+    c = Not(sel[2]) * (sel[1]) * Not(sel[0]) * in          0   1   0
+    d = Not(sel[2]) * (sel[1]) * (sel[0]) * in             0   1   1     (wohi 2^3 combinations)
+    e = (sel[2]) * Not(sel[1]) * Not(sel[0]) * in          1   0   0
+    f = (sel[2]) * Not(sel[1]) * (sel[0]) * in             1   0   1
+    g = (sel[2]) * (sel[1]) * Not(sel[0]) * in             1   1   0
+    h = (sel[2]) * (sel[1]) * (sel[0]) * in                1   1   1
  */
+
+
 CHIP DMux8Way {
     IN in, sel[3];
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-    //// Replace this comment with your code.
+    Not(in=sel[0], out=notSel0);
+    Not(in=sel[1], out=notSel1);
+    Not(in=sel[2], out=notSel2);
+    And4Way(a=notSel2, b=notSel1, c=notSel0, d=in, out=a);
+    And4Way(a=notSel2, b=notSel1, c=sel[0], d=in, out=b);
+    And4Way(a=notSel2, b=sel[1], c=notSel0, d=in, out=c);
+    And4Way(a=notSel2, b=sel[1], c=sel[0], d=in, out=d);
+    And4Way(a=sel[2], b=notSel1, c=notSel0, d=in, out=e);
+    And4Way(a=sel[2], b=notSel1, c=sel[0], d=in, out=f);
+    And4Way(a=sel[2], b=sel[1], c=notSel0, d=in, out=g);
+    And4Way(a=sel[2], b=sel[1], c=sel[0], d=in, out=h);
+
 }
+
+/*
+OR We can use a DMux4Way to split the input into two halves, and then use two DMux4Ways to split each half into four outputs. 
+This would require fewer gates and be more efficient.
+
+CHIP DMux8Way {
+    IN in, sel[3];
+    OUT a, b, c, d, e, f, g, h;
+
+    PARTS:
+    DMux(in=in, sel=sel[2], a=dmux0, b=dmux1);
+    DMux4Way(in=dmux0, sel=sel[0..1], a=a, b=b, c=c, d=d);
+    DMux4Way(in=dmux1, sel=sel[0..1], a=e, b=f, c=g, d=h);
+}
+
+*/
