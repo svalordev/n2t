@@ -15,11 +15,11 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    Inc16(in=w0, out=w0inc);
+    Inc16(in=w0, out=w0inc); // compute increased w0
 
-    Mux16(a=w0, b=w0inc, sel=inc, out=w1);
-    Mux16(a=w1, b=in, sel=load, out=w2);
-    Mux16(a=w2, b=false, sel=reset, out=w3);
+    Mux16(a=w0, b=w0inc, sel=inc, out=w1); // deal with inc 
+    Mux16(a=w1, b=in, sel=load, out=w2); // deal with load 
+    Mux16(a=w2, b=false, sel=reset, out=w3); // deal with reset
     
-    Register(in=w3, load=true, out=out, out=w0);
+    Register(in=w3, load=true, out=out, out=w0); 
 }

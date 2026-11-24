@@ -15,6 +15,5 @@ CHIP Mux4Way16 {
     
     PARTS:
     
-    Mux(a=a[16], 
-
+    //// Replace this comment with your code.
 }

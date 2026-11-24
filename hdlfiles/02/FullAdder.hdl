@@ -12,6 +12,9 @@ CHIP FullAdder {
 
     PARTS:
 
+
+    // combine 2 half adders 
+
     HalfAdder(a=a, b=b, sum=w0, carry=c0);
     HalfAdder(a=w0, b=c, sum=sum, carry=c1);
 

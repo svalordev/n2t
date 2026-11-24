@@ -41,30 +41,35 @@ CHIP ALU {
         ng;      // if (out < 0)  equals 1, else 0
 
     PARTS:
+        // deal with zx and nx
         Mux16(a=x, b=false, sel=zx, out=w0);
         Not16(in=w0, out=notw0);
         Mux16(a=w0, b=notw0, sel=nx, out=i0);
 
+        // then deal with zy and ny 
         Mux16(a=y, b=false, sel=zy, out=w1);
         Not16(in=w1, out=notw1);
         Mux16(a=w1, b=notw1, sel=ny, out=i1);
 
+
+        // compute the and and add outputs 
         Add16(a=i0, b=i1, out=addoutput);
         And16(a=i0, b=i1, out=andoutput);
 
+
+        // deal with f 
         Mux16(a=andoutput, b=addoutput, sel=f, out=foutput);
 
+
+        // deal with no 
         Not16(in=foutput, out=notfoutput);
         Mux16(a=foutput, b=notfoutput, sel=no, out=out, out[0..7]=low8, out[8..15]=high8, out[15]=ng);
 
-        // Because we don't have Or16Way chips
+        // Because we don't have Or16Way chips, we implement this by using 2 Or8Way chips and 1 Or chip
+        // Splitting the 16 bit output into 2 8 bit outputs and then using Or8Way on each of them and then using Or on the results of the 2 Or8Way chips
 
         Or8Way(in=low8, out=orlow);
         Or8Way(in=high8, out=orhigh);
         Or(a=orlow, b=orhigh, out=nonzero);
         Not(in=nonzero, out=zr);
-
-
-    
-
 }
