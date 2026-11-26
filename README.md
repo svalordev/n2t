@@ -12,7 +12,7 @@ tadcomp/
 │   ├── 01/                         # Basic Boolean logic gates
 │   ├── 02/                         # Boolean arithmetic & ALU
 │   └── 03/                         # Sequential logic, registers, RAM, and PC
-│   └── 03/                         # RAM, CPU, and Computer 
+│   └── 05/                         # RAM, CPU, and Computer 
 ├── notes/                          # Study notes
 │   ├── chapter2.pdf                # Boolean Arithmetic notes
 │   └── chapter3.pdf                # Sequential Logic notes
