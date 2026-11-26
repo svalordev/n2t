@@ -1,0 +1,102 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/5/CPU.hdl
+/**
+ * The Hack Central Processing unit (CPU).
+ * Parses the binary code in the instruction input and executes it according to the
+ * Hack machine language specification. In the case of a C-instruction, computes the
+ * function specified by the instruction. If the instruction specifies to read a memory
+ * value, the inM input is expected to contain this value. If the instruction specifies
+ * to write a value to the memory, sets the outM output to this value, sets the addressM
+ * output to the target address, and asserts the writeM output (when writeM = 0, any
+ * value may appear in outM).
+ * If the reset input is 0, computes the address of the next instruction and sets the
+ * pc output to that value. If the reset input is 1, sets pc to 0.
+ * Note: The outM and writeM outputs are combinational: they are affected by the
+ * instruction's execution during the current cycle. The addressM and pc outputs are
+ * clocked: although they are affected by the instruction's execution, they commit to
+ * their new values only in the next cycle.
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+
+    // Decide whether the instruction is A or not A (ie C)
+    Not(in=instruction[15], out=isAinstruction);
+
+    
+    // ***** A Register *****
+
+    // whether to load A or not with help of either the A instruction or the dest bit (5)
+    Or(a=isAinstruction, b=instruction[5], out=loadA);
+    // what to put in the A,  either the A instruction or ALU output (dest 05)
+    Mux16(a=instruction, b=ALUout, sel=instruction[15], out=inA);
+    
+    // We have to use the ARegister here, normal Register doesn't work. 
+    ARegister(in=inA, load=loadA, out=ARegisterOut, out[0..14]=addressM); // [0..14] because memory accepts 15 bit address
+
+    
+    
+    // ***** D Register *****
+    // To write to the D register, dest 04 should be fulfilled and it should be a C-instruction 
+    And(a=instruction[4], b=instruction[15], out=loadD);
+
+
+    // We have to use the DRegister here, normal Register doesn't work. 
+    DRegister(in=ALUout, load=loadD, out=DRegisterOut);
+
+
+    // Multiplexer for the a-bit (if a = 9 then pass A if a = 1 then pass M)
+    Mux16(a=ARegisterOut, b=inM, sel=instruction[12], out=yInputOfALU);
+    
+
+    // The ALU has 2 inputs, x, which is always D, and another which is determined by the a bit
+    // Then we pass the 6 instruction bits from 6 to 11 
+    // Also, the ALU output is outM which would be written to memory if writeM == 1
+    ALU(x=DRegisterOut, y=yInputOfALU, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=ALUout, zr=isALUoutzr, ng=isALUoutng, out=outM);
+
+
+    // Decide whether to write to M 
+    // Should be C-instruction and dest bit 03
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    // To satisfy the jump conditions
+    // The AND operation outputs of the jump bits with the respective ALU outputs should be calculated
+    // N, O ,P (we find whether it is P by doing NOR(zr, ng))
+    And(a=instruction[2], b=isALUoutng, out=jmp1); //1
+    And(a=instruction[1], b=isALUoutzr, out=jmp2); //2
+
+
+    Or(a=isALUoutng, b=isALUoutzr, out=notALUpositive);
+    Not(in=notALUpositive, out=isALUpositive);
+    
+    And(a=instruction[0], b=isALUpositive, out=jmp3); //3
+
+
+    // And then we do OR on all 3 of them 
+    Or(a=jmp1, b=jmp2, out=w0);
+    Or(a=w0, b=jmp3, out=shouldJump);
+
+
+    // Then to make sure it is only jumping when it is a C-instruction
+    And(a=instruction[15], b=shouldJump, out=Jump);
+
+
+    // Program Counter
+    // Address register holds the new jump if jump==true
+    // PC outputs out a 15 bit in order to get the new instruction from the ROM (which accepts 15 bit)
+    PC(in=ARegisterOut, load=Jump, inc=true, reset=reset, out[0..14]=pc);
+}

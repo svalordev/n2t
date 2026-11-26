@@ -12,9 +12,11 @@ tadcomp/
 │   ├── 01/                         # Basic Boolean logic gates
 │   ├── 02/                         # Boolean arithmetic & ALU
 │   └── 03/                         # Sequential logic, registers, RAM, and PC
+│   └── 03/                         # RAM, CPU, and Computer 
 ├── notes/                          # Study notes
 │   ├── chapter2.pdf                # Boolean Arithmetic notes
 │   └── chapter3.pdf                # Sequential Logic notes
+│   └── chapter5.pdf                # Computer Architecture notes
 ├── important_figures/              # Textbook architecture & API reference diagrams
 │   ├── Hardware/                   # CPU, Computer, Memory, Screen & Keyboard interfaces
 │   ├── Assembler/                  # Assembler Parser & Symbol Table diagrams
@@ -29,10 +31,9 @@ tadcomp/
 
 ---
 
-
 ## Study Materials & References
 
 - **Course Documents**: [Hardware Simulator Tutorial.pdf](./Hardware%20Simulator%20Tutorial.pdf) and [Nand to Tetris syllabus.pdf](./Nand%20to%20Tetris%20syllabus.pdf)
-- **Notes**: Chapter notes in [`notes/`](./notes/) (`chapter2.pdf`, `chapter3.pdf`)
+- **Notes**: Chapter notes in [`notes/`](./notes/) (`chapter2.pdf`, `chapter3.pdf`, `chapter5.pdf`)
 - **Diagrams**: Reference figures for Hardware, Assembler, VM, and Jack in [`important_figures/`](./important_figures/)
 - **Official Website**: [nand2tetris.org](https://www.nand2tetris.org/)
